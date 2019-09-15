@@ -66,13 +66,13 @@ The state diagram of the control unit consists of the following states (besides 
 
 - **State 1:** init memory counter (for reading data from the training dataset). Takes 4 clock cycles (the voting counter was used for this) due to 3 pipeline stages and register on the memory output.
 
-- **State 2:** sorting of the lists.
+- **State 2:** sorting of the lists (takes 7 clock cycles).
 
-- **State 3:** reset of both counters (memory and voting).
+- **State 3:** reset of both counters (memory and voting). Takes 1 clock cycle.
 
 - **State 4:** init voting counter. Takes 3 clock cycles (this time, the memory counter was used for this) due to intermediate registers in the parallelized circuit.
 
-- **State 5:** voting (obtain the most common class).
+- **State 5:** voting (obtain the most common class). Takes k + 1 clock cycles.
 
 ![Screenshot](images/state_diagram.png)
 
@@ -98,7 +98,7 @@ The datapath is composed by the memories (measurements and classes), the counter
 
 The FPGA was configured to use 14 switches to insert the petal or sepal length and width (depending on the button pushed) as 3 bits are used for the decimal part and 4 bits are used for the fractional part. The other two switches select the value of k. There are other push buttons for starting the algorithm (should only be pushed after inserting the flower measurements), to reset and to select which measurements (sepal or petal) are represented on the 7-segment display. Finally, the leds are used to represent the result of the classification.
 
-![Screenshot](images/FPGA_configuration.png)
+![Screenshot](images/fpga_configuration.png)
 
 The VHDL top module is displayed on the image below and is composed by: the 7-segment display interface, clock divider (for the 7-segment display), LEDs encoder, blocks to convert from hexadecimal to 7-segment and the blocks that convert the fractional part of the measurements from decimal to hexadecimal and vice-versa.
 
@@ -107,3 +107,22 @@ The VHDL top module is displayed on the image below and is composed by: the 7-se
 **NOTE 1: The .xdc file for associating the top module inputs/outputs with the FPGA peripherals is inside the constraints/ folder.**
 
 **NOTE 2: The VHDL top module (fpga_basicIO.vhd) and the other modules are inside the src/ folder.**
+
+## Results
+
+- Regarding the consumption of the FPGA logic primitives, it is important to highlight the quantity of DSPs (71%) used.
+
+|       Resource      |    LUT   |    FF    |   BRAM   |   DSP   |    
+|:--------------------|:---------|:---------|:---------|:--------|
+|   Quantity used     |   9757   |   9066   |   14,5   |   64    |
+|   Total available   |   20800  |   41600  |    50    |   90    |
+|     Percentage      |   46,91% |   21,79% |   29,00% |  71,11% |
+
+- Regarding the temporal characteristics, for a 170 MHz frequency (corresponds to a period of 5.88 ns), the WNS (Worst Negative Slack) was 0.079 ns and the WHS (Worst Hold Stack) was 0,012 ns.
+
+- Finally, taking into account the clock period (5.88 ns) and the duration of each state of the control unit, we can use this expression to determine the performance of the algorithm (processing time between reading the flower measurements until reaching its class):
+```
+t = 5.88 x ( 1 + 4 + 7 + 1 + 3 + k + 1)
+```  
+
+Overall, the algorithm takes between 106 ns (k = 1) and 130 ns (k = 5) to be performed.
