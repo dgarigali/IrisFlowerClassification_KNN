@@ -126,3 +126,19 @@ t = 5.88 x ( 1 + 4 + 7 + 1 + 3 + k + 1)
 ```  
 
 Overall, the algorithm takes between 106 ns (k = 1) and 130 ns (k = 5) to be performed.
+
+## Testbench
+
+For the simulation, it was tested an instance of the testing dataset where the resulting class is versicolor (01) for k = 1 and k = 3 and virginica (10) for k = 5. This instance has a sepal length and width of 6 and 2.2 respectively and a petal length and width of 5 and 1.5 respectively. In the yellow line one can see the values of the voting counters (counter_0, counter_1 and counter_2 signals) and in the blue line the resulting class (result signal).
+
+- For k = 1, counter_1 = 1, hence, it was classified as a versicolor (01).
+
+![Screenshot](images/tb_1.png)
+
+- For k = 3, counter_1 = 2, hence, it was classified as a versicolor (01).
+
+![Screenshot](images/tb_2.png)
+
+- For k = 5, counter_2 = 3, hence, it was classified as a virginica (10).
+
+![Screenshot](images/tb_3.png)
